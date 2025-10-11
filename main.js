@@ -29,7 +29,7 @@ async function sendGetRequest() {
     }
 
     const allProducts = [];
-    const seenNames = new Set();
+    const seenIds = new Set();
 
     for (let page = 1; page <= max_pages; page++) {
         const pageUrl = page === 1 ? baseUrl : `${baseUrl}&sayfa=${page}`;
@@ -51,7 +51,6 @@ async function sendGetRequest() {
                 let title = titleElement.text().trim();
                 const priceElement = $(li).find("div.price-module_finalPrice__LtjvY");
                 const linkElement = $(li).find("article.productCard-module_article__HJ97o > a");
-
                 // Fiyat parse
                 let numericPrice = null;
                 if (priceElement.length) {
@@ -74,9 +73,12 @@ async function sendGetRequest() {
                     ? new URL(linkElement.attr("href"), "https://www.hepsiburada.com").href
                     : null;
 
-                if (title && productUrl && !seenNames.has(title)) {
-                    seenNames.add(title);
-                    products.push({ name: title, price: numericPrice, url: productUrl });
+                const match = productUrl.match(/(?:-p-|pm-)([A-Z0-9]+)(?:\?|$)/);
+                const productId = match ? match[1] : null;
+
+                if (productId, title && productUrl && !seenIds.has(productId)) {
+                    seenIds.add(productId);
+                    products.push({ id: productId, name: title, price: numericPrice, url: productUrl });
                 }
             });
 

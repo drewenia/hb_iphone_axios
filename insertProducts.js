@@ -1,11 +1,11 @@
 const { safeRun, all } = require('./db');
 const { sendTelegramMessage } = require('./telegram');
-const STALE_THRESHOLD = 3600; // saniye
+const STALE_THRESHOLD = 30; // saniye
 
 async function insertOrUpdateProducts(products) {
-    const existingRows = await all(`SELECT name, price, base_price, max_ratio FROM hb_iphone_axios`);
+    const existingRows = await all(`SELECT product_id, name, price, base_price, max_ratio FROM hb_iphone_axios`);
     const existingProducts = new Map(
-        existingRows.map(r => [r.name, {
+        existingRows.map(r => [`${r.product_id}-${r.name}`, {
             price: r.price,
             base: r.base_price,
             max: r.max_ratio || 0
@@ -14,14 +14,14 @@ async function insertOrUpdateProducts(products) {
     const now = Math.floor(Date.now() / 1000); // epoch time
 
     for (const p of products) {
-        const key = p.name;
+        const key = `${p.id}-${p.name}`;
         const newPriceValue = p.price;
         const oldEntry = existingProducts.get(key);
 
         if (!oldEntry) {
             await safeRun(
-                "INSERT OR IGNORE INTO hb_iphone_axios (name, price, url, last_seen_at, base_price, max_ratio) VALUES (?, ?, ?, ?, ?, ?)",
-                [p.name, newPriceValue, p.url, now, newPriceValue, 0]
+                "INSERT OR IGNORE INTO hb_iphone_axios (product_id, name, price, url, last_seen_at, base_price, max_ratio) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                [p.id, p.name, newPriceValue, p.url, now, newPriceValue, 0]
             );
             const currentDate = new Date();
                     const formattedTime = currentDate.toLocaleString("tr-TR", {
@@ -57,8 +57,8 @@ async function insertOrUpdateProducts(products) {
                         : '';
 
                     await safeRun(
-                        "UPDATE hb_iphone_axios SET price = ?, second_price = ?, ratio = ?, last_seen_at = ?, update_time = ?, max_ratio = ? WHERE name = ?",
-                        [newPriceValue, oldPriceValue, ratio, now, updateTime, ratio, p.name]
+                        "UPDATE hb_iphone_axios SET price = ?, second_price = ?, ratio = ?, last_seen_at = ?, update_time = ?, max_ratio = ? WHERE product_id = ?",
+                        [newPriceValue, oldPriceValue, ratio, now, updateTime, ratio, p.id]
                     );
                     const currentDate = new Date();
                     const formattedTime = currentDate.toLocaleString("tr-TR", {
@@ -74,8 +74,8 @@ async function insertOrUpdateProducts(products) {
                 } else {
                     // --- Normal Fiyat Düşüşü (Bildirim Yok) ---
                     await safeRun(
-                        "UPDATE hb_iphone_axios SET price = ?, second_price = ?, ratio = ?, last_seen_at = ? WHERE name = ?",
-                        [newPriceValue, oldPriceValue, ratio, now, p.name]
+                        "UPDATE hb_iphone_axios SET price = ?, second_price = ?, ratio = ?, last_seen_at = ? WHERE product_id = ?",
+                        [newPriceValue, oldPriceValue, ratio, now, p.id]
                     );
                     existingProducts.set(key, { price: newPriceValue, base: basePrice, max: maxRatio });
                 }
@@ -101,14 +101,14 @@ async function insertOrUpdateProducts(products) {
                 }
                 await safeRun(
                     // UPDATE sorgusu: price, base_price, max_ratio, last_seen_at, product_id
-                    "UPDATE hb_iphone_axios SET price = ?, base_price = ?, max_ratio = ?, second_price = NULL, ratio = NULL, last_seen_at = ? WHERE name = ?",
-                    [newPriceValue, updatedBasePrice, updatedMaxRatio, now, p.name]
+                    "UPDATE hb_iphone_axios SET price = ?, base_price = ?, max_ratio = ?, second_price = NULL, ratio = NULL, last_seen_at = ? WHERE product_id = ?",
+                    [newPriceValue, updatedBasePrice, updatedMaxRatio, now, p.id]
                 );
                 existingProducts.set(key, { price: newPriceValue, base: updatedBasePrice, max: updatedMaxRatio });
             } else {
                 await safeRun(
-                    "UPDATE hb_iphone_axios SET last_seen_at = ? WHERE name = ?",
-                    [now, p.name]
+                    "UPDATE hb_iphone_axios SET last_seen_at = ? WHERE product_id = ?",
+                    [now, p.id]
                 );
             }
         }

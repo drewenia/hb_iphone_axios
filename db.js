@@ -14,6 +14,7 @@ db.serialize(() => {
     db.run(`
         CREATE TABLE IF NOT EXISTS hb_iphone_axios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        product_id,
         name TEXT,
         price REAL,
         second_price REAL,
@@ -23,7 +24,7 @@ db.serialize(() => {
         last_seen_at INTEGER,
         update_time INTEGER,
         base_price REAL,
-        UNIQUE(name)
+        UNIQUE(product_id,name)
     )
     `);
     db.run(`CREATE INDEX IF NOT EXISTS idx_hb_iphone_axios_name ON hb_iphone_axios(name)`);
