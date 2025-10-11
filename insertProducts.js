@@ -46,7 +46,7 @@ async function insertOrUpdateProducts(products) {
 
             // INDIRIM
             if (newPriceValue < oldPriceValue) {
-                if (ratio >= 7 && ratio >= maxRatio + 2) {
+                if (ratio >= 5 && ratio >= maxRatio + 2) {
                     const updateTime = now;
                     const isFirstNotification = (maxRatio === 0);
                     const messageHeader = isFirstNotification
