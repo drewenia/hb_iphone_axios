@@ -24,12 +24,12 @@ async function insertOrUpdateProducts(products) {
                 [p.id, p.name, newPriceValue, p.url, now, newPriceValue, 0]
             );
             const currentDate = new Date();
-                    const formattedTime = currentDate.toLocaleString("tr-TR", {
-                        hour12: false,
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        second: "2-digit",
-                    });
+            const formattedTime = currentDate.toLocaleString("tr-TR", {
+                hour12: false,
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+            });
             // STOKTA
             if (p.name.toLowerCase().includes("iphone 17 pro") || p.name.toLowerCase().includes("iphone 17 pro max")) {
                 await sendTelegramMessage(`💀 Stokta\n\n🛒 HEPSIBURADA\n\n🛍️ Ürün: [${p.name}](${p.url})\n\n💰 Güncel Fiyat: *${newPriceValue} TL*\n\n🕒 ${formattedTime} ⚠️ Axi`);
