@@ -76,15 +76,24 @@ async function sendGetRequest() {
                 const match = productUrl.match(/(?:-p-|pm-)([A-Z0-9]+)(?:\?|$)/);
                 const productId = match ? match[1] : null;
 
-                if (productId, title && productUrl && !seenIds.has(productId)) {
-                    seenIds.add(productId);
-                    products.push({ id: productId, name: title, price: numericPrice, url: productUrl });
+                if (productId && title && productUrl) {
+                    const uniqueKey = `${productId}_${title.trim().toLowerCase()}`;
+
+                    if (!seenIds.has(uniqueKey)) {
+                        seenIds.add(uniqueKey);
+                        products.push({
+                            id: productId,
+                            name: title,
+                            price: numericPrice,
+                            url: productUrl
+                        });
+                    }
                 }
             });
 
             console.log(`✅ ${products.length} ürün bulundu.`);
             allProducts.push(...products);
-            
+
             if (page < max_pages) {
                 const delay = getRandomDelay();
                 console.log(`⏳ ${delay / 1000} saniye rastgele bekleniyor...`);

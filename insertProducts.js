@@ -68,7 +68,7 @@ async function insertOrUpdateProducts(products) {
                         second: "2-digit",
                     });
                     await sendTelegramMessage(
-                        `${messageHeader}\n\n🛒 HEPSIBURADA\n\n🛍️ Ürün: [${p.name}](${p.url})\n\n💰 Yeni Fiyat: *${newPriceValue} TL*\n💰 Önceki Fiyat: *${basePrice} TL*\n📉 İndirim Oranı: *%${ratio}* ${dropAmountText}\n\n🕒 ${formattedTime}`
+                        `${messageHeader}\n\n🛒 HEPSIBURADA\n\n🛍️ Ürün: [${p.name}](${p.url})\n\n💰 Yeni Fiyat: *${newPriceValue} TL*\n💰 Önceki Fiyat: *${basePrice} TL*\n📉 İndirim Oranı: *%${ratio}* ${dropAmountText}\n\n🕒 ${formattedTime} ⚠️ Axi`
                     );
                     existingProducts.set(key, { price: newPriceValue, base: basePrice, max: ratio });
                 } else {
