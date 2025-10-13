@@ -2,7 +2,7 @@ const TelegramBot = require('node-telegram-bot-api');
 
 // Bot token'ını buraya ekle
 const TELEGRAM_TOKEN = '8356577387:AAGahFMIrLyBwiBHp17wBm_3mj5AkBf0fYM';
-const TELEGRAM_CHAT_ID = -1003026592216; // <-- buraya chat ID'yi yaz
+const TELEGRAM_CHAT_ID = "-1003026592216"; // <-- buraya chat ID'yi yaz
 //const TELEGRAM_CHAT_ID = "-4980847367"; // TEST
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: false });
 

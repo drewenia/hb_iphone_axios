@@ -83,7 +83,7 @@ async function insertOrUpdateProducts(products) {
                 let updatedBasePrice = basePrice;
                 let updatedMaxRatio = maxRatio;
                 // Base Price'ın %1.5 altı = Toparlanma Eşiği (Örn: 60000 * 0.985 = 59100 TL)
-                const resetThreshold = basePrice * 0.975;
+                const resetThreshold = basePrice * 0.98;
                 // Fiyat Base Price'tan yüksek mi? (Yeni tavan kırıldı mı?)
                 const isNewPriceHigherThanBase = (newPriceValue > basePrice);
                 // Fiyat, indirimden sonra toparlanma eşiğini geçti mi?
