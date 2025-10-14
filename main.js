@@ -5,7 +5,7 @@ const cheerio = require('cheerio');
 const { insertOrUpdateProducts } = require('./insertProducts');
 
 const max_pages = 2; // ← burayı değiştirebilirsin
-const baseUrl = "https://www.hepsiburada.com/apple/iphone-ios-telefonlar-c-60005202?filtreler=satici:Hepsiburada,VATAN€20B€C4€B0LG€C4€B0SAYAR,Akg€C3€BCnler€20€7C€20Yetkili€20Bayi";
+const baseUrl = "https://www.hepsiburada.com/apple/iphone-ios-telefonlar-c-60005202?filtreler=satici:Hepsiburada";
 
 // İstek fonksiyonu
 async function sendGetRequest() {
