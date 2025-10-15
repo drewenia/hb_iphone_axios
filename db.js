@@ -14,7 +14,7 @@ db.serialize(() => {
     db.run(`
         CREATE TABLE IF NOT EXISTS hb_iphone_axios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        product_id,
+        product_id TEXT,
         name TEXT,
         price REAL,
         second_price REAL,
