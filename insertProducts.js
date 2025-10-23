@@ -31,7 +31,27 @@ async function insertOrUpdateProducts(products) {
                 second: "2-digit",
             });
             // STOKTA
-            if (p.name.toLowerCase().includes("iphone 17 pro") || p.name.toLowerCase().includes("iphone 17 pro max")) {
+            if (
+                (
+                    p.name.toLowerCase().includes("iphone 17 pro max") &&
+                    (
+                        p.name.toLowerCase().includes("256") ||
+                        p.name.toLowerCase().includes("512") ||
+                        p.name.toLowerCase().includes("1 tb") ||
+                        p.name.toLowerCase().includes("1tb")
+                    )
+                ) ||
+                (
+                    p.name.toLowerCase().includes("iphone 17 pro") &&
+                    !p.name.toLowerCase().includes("max") && // pro max'leri dışla
+                    (
+                        p.name.toLowerCase().includes("256") ||
+                        p.name.toLowerCase().includes("512") ||
+                        p.name.toLowerCase().includes("1 tb") ||
+                        p.name.toLowerCase().includes("1tb")
+                    )
+                )
+            ) {
                 await sendTelegramMessage(`💀 Stokta\n\n🛒 HEPSIBURADA\n\n🛍️ Ürün: [${p.name}](${p.url})\n\n💰 Güncel Fiyat: *${newPriceValue} TL*\n\n🕒 ${formattedTime} ⚠️ Axi`);
             }
 
