@@ -4,7 +4,7 @@ const { getRandomBrowserConfig, getRandomAcceptLanguage } = require('./uaManager
 const cheerio = require('cheerio');
 const { insertOrUpdateProducts } = require('./insertProducts');
 
-const max_pages = 2; // ← burayı değiştirebilirsin
+const max_pages = 3; // ← burayı değiştirebilirsin
 const baseUrl = "https://www.hepsiburada.com/apple/iphone-ios-telefonlar-c-60005202?filtreler=satici:Hepsiburada";
 
 // İstek fonksiyonu
