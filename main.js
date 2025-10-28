@@ -111,13 +111,13 @@ async function sendGetRequest() {
                 console.error('İstek Kurulum Hatası:', error.message);
             }
         }
-        if (allProducts.length > 0) {
-            await insertOrUpdateProducts(allProducts);
-        } else {
-            console.log('⚠️ Sayfada ürün bulunamadı.');
-        }
     }
-    console.clear();
+    if (allProducts.length > 0) {
+        await insertOrUpdateProducts(allProducts);
+    } else {
+        console.log('⚠️ Sayfada ürün bulunamadı.');
+    }
+    //console.clear();
 }
 
 sendGetRequest();

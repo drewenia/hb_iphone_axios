@@ -1,6 +1,6 @@
 const { safeRun, all } = require('./db');
 const { sendTelegramMessage } = require('./telegram');
-const STALE_THRESHOLD = 90; // saniye
+//const STALE_THRESHOLD = 90; // saniye
 
 async function insertOrUpdateProducts(products) {
     const existingRows = await all(`SELECT product_id, name, price, base_price, max_ratio FROM hb_iphone_axios`);
@@ -23,38 +23,6 @@ async function insertOrUpdateProducts(products) {
                 "INSERT OR IGNORE INTO hb_iphone_axios (product_id, name, price, url, last_seen_at, base_price, max_ratio) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 [p.id, p.name, newPriceValue, p.url, now, newPriceValue, 0]
             );
-            const currentDate = new Date();
-            const formattedTime = currentDate.toLocaleString("tr-TR", {
-                hour12: false,
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-            });
-            // STOKTA
-            if (
-                (
-                    p.name.toLowerCase().includes("iphone 17 pro max") &&
-                    (
-                        p.name.toLowerCase().includes("256") ||
-                        p.name.toLowerCase().includes("512") ||
-                        p.name.toLowerCase().includes("1 tb") ||
-                        p.name.toLowerCase().includes("1tb")
-                    )
-                ) ||
-                (
-                    p.name.toLowerCase().includes("iphone 17 pro") &&
-                    !p.name.toLowerCase().includes("max") && // pro max'leri dışla
-                    (
-                        p.name.toLowerCase().includes("256") ||
-                        p.name.toLowerCase().includes("512") ||
-                        p.name.toLowerCase().includes("1 tb") ||
-                        p.name.toLowerCase().includes("1tb")
-                    )
-                )
-            ) {
-                await sendTelegramMessage(`💀 Stokta\n\n🛒 HEPSIBURADA\n\n🛍️ Ürün: [${p.name}](${p.url})\n\n💰 Güncel Fiyat: *${newPriceValue} TL*\n\n🕒 ${formattedTime} ⚠️ Axi`);
-            }
-
             existingProducts.set(key, { price: newPriceValue, base: newPriceValue, max: 0 });
         } else {
             const oldPriceValue = oldEntry.price;
@@ -135,10 +103,10 @@ async function insertOrUpdateProducts(products) {
     }
 
     // 30 saniyeden eski ürünleri sil
-    await safeRun(
-        `DELETE FROM hb_iphone_axios WHERE last_seen_at < ?`,
-        [now - STALE_THRESHOLD]
-    );
+    // await safeRun(
+    //     `DELETE FROM hb_iphone_axios WHERE last_seen_at < ?`,
+    //     [now - STALE_THRESHOLD]
+    // );
 
     console.log(`✅ ${products.length} ürün işlendi, stale ürünler temizlendi.`);
 }
