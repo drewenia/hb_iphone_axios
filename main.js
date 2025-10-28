@@ -30,12 +30,10 @@ async function sendGetRequest() {
 
     const allProducts = [];
     const seenIds = new Set();
+    let totalPagesCalculated = null; // Dinamik sayfa sayısı için flag
 
     for (let page = 1; page <= max_pages; page++) {
         const pageUrl = page === 1 ? baseUrl : `${baseUrl}&sayfa=${page}`;
-        console.log(`\n==============================`);
-        console.log(`🔍 Sayfa ${page}: ${pageUrl}`);
-        console.log("==============================");
         try {
             // Axios, dataPayload'u otomatik olarak JSON formatına çevirip gönderir
             const response = await axios.get(pageUrl, axiosConfig);
@@ -44,6 +42,18 @@ async function sendGetRequest() {
                 return;
             }
             const $ = cheerio.load(response.data);
+            if (page === 1) {
+                const productCountText = $('div.VZbTh5SU1OsNkwSvy5FF').text().trim();
+                const match = productCountText.match(/(\d+)/);
+                if (match) {
+                    const totalProducts = parseInt(match[1]);
+                    totalPagesCalculated = Math.ceil(totalProducts / 36);
+                    console.log(`🧮 Toplam ürün: ${totalProducts} → Sayfa sayısı: ${totalPagesCalculated}`);
+                } else {
+                    console.log(`⚠️ Ürün sayısı div'i bulunamadı, varsayılan max_pages (${max_pages}) kullanılacak.`);
+                }
+            }
+            
             const products = [];
             const $ul = $(`ul.productListContent-frGrtf5XrVXRwJ05HUfU.productListContent-rEYj2_8SETJUeqNhyzSm[id="${page}"]`);
             $ul.find('li:not(.productListContent-DZbeDrMzX6R9iSLP7Mxt)').each((_, li) => {
