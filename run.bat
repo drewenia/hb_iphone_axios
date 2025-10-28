@@ -1,5 +1,6 @@
 @echo off
 :loop
+  cls
   echo %date% %time%: Script baslatiliyor...
   
   node main.js
@@ -15,7 +16,7 @@
   )
   
   REM 20-25 saniye arasi rastgele bir bekleme suresi hesapla
-  SET /A "RANDOM_DELAY=(%RANDOM% %% 6) + 5"
+  SET /A "RANDOM_DELAY=(%RANDOM% %% 6) + 10"
   echo %RANDOM_DELAY% saniye bekleniyor...
   
   timeout /t %RANDOM_DELAY% /nobreak
