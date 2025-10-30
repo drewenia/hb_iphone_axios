@@ -57,7 +57,7 @@ async function sendGetRequest() {
                 let title = titleElement.text().trim();
                 const priceElement = $(li).find("div.price-module_finalPrice__LtjvY");
                 const linkElement = $(li).find("article.productCard-module_article__HJ97o > a");
-                // Fiyat parse
+
                 let numericPrice = null;
                 if (priceElement.length) {
                     let priceText = priceElement.text().trim().replace(/[^0-9,.]/g, "");
