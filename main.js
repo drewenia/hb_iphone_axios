@@ -27,7 +27,7 @@ async function sendGetRequest() {
 
     const allProducts = [];
     const seenIds = new Set();
-    let totalPagesCalculated = null; 
+    let totalPagesCalculated = null;
 
     for (let page = 1; page <= max_pages; page++) {
         const pageUrl = page === 1 ? baseUrl : `${baseUrl}&sayfa=${page}`;
@@ -49,7 +49,7 @@ async function sendGetRequest() {
                     console.log(`⚠️ Ürün sayısı div'i bulunamadı, varsayılan max_pages (${max_pages}) kullanılacak.`);
                 }
             }
-            
+
             const products = [];
             const $ul = $(`ul.productListContent-frGrtf5XrVXRwJ05HUfU.productListContent-rEYj2_8SETJUeqNhyzSm[id="${page}"]`);
             $ul.find('li:not(.productListContent-DZbeDrMzX6R9iSLP7Mxt)').each((_, li) => {
@@ -81,6 +81,10 @@ async function sendGetRequest() {
 
                 const match = productUrl.match(/(?:-p-|pm-)([A-Z0-9]+)(?:\?|$)/);
                 const productId = match ? match[1] : null;
+
+                if (!productUrl || !productUrl.includes("?magaza")) {
+                    return;
+                }
 
                 if (productId && title && productUrl) {
                     const uniqueKey = `${productId}_${title.trim().toLowerCase()}`;
