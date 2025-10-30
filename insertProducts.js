@@ -1,6 +1,6 @@
 const { safeRun, all } = require('./db');
 const { sendTelegramMessage } = require('./telegram');
-const STALE_THRESHOLD = 90; // saniye
+const STALE_THRESHOLD = 90;
 
 async function insertOrUpdateProducts(products) {
     const existingRows = await all(`SELECT product_id, name, price, base_price, max_ratio FROM hb_iphone_axios`);
