@@ -1,6 +1,6 @@
 const { safeRun, all } = require('./db');
 const { sendTelegramMessage } = require('./telegram');
-//const STALE_THRESHOLD = 90; // saniye
+const STALE_THRESHOLD = 90; // saniye
 
 async function insertOrUpdateProducts(products) {
     const existingRows = await all(`SELECT product_id, name, price, base_price, max_ratio FROM hb_iphone_axios`);
@@ -27,27 +27,26 @@ async function insertOrUpdateProducts(products) {
         } else {
             const oldPriceValue = oldEntry.price;
             const basePrice = oldEntry.base;
-            // oldEntry.max: Son bildirimin tabanını tutar
             const maxRatio = oldEntry.max || 0;
-            // Base price üzerinden indirim oranı
             const ratio = parseFloat(((1 - newPriceValue / basePrice) * 100).toFixed(2));
 
-            // INDIRIM
             if (newPriceValue < oldPriceValue) {
-                if (ratio >= 5 && ratio >= maxRatio + 2) {
+                if (ratio >= 7 && ratio >= maxRatio + 2) {
                     const updateTime = now;
                     const isFirstNotification = (maxRatio === 0);
                     const messageHeader = isFirstNotification
-                        ? `🔥 FİYAT DÜŞTÜ!`
-                        : `⬇️ ÜRÜNÜN FİYATI TEKRAR DÜŞTÜ!`;
+                        ? `🚨 FİYAT DÜŞTÜ!`
+                        : `⚠️ ÜRÜNÜN FİYATI TEKRAR DÜŞTÜ!`;
+
                     const dropAmountText = !isFirstNotification
                         ? ` (+${(ratio - maxRatio).toFixed(2)}% daha düştü!)`
                         : '';
 
                     await safeRun(
-                        "UPDATE hb_iphone_axios SET price = ?, second_price = ?, ratio = ?, last_seen_at = ?, update_time = ?, max_ratio = ? WHERE product_id = ?",
-                        [newPriceValue, oldPriceValue, ratio, now, updateTime, ratio, p.id]
+                        "UPDATE hb_iphone_axios SET price = ?, second_price = ?, ratio = ?, last_seen_at = ?, update_time = ?, max_ratio = ? WHERE product_id = ? AND name = ?",
+                        [newPriceValue, oldPriceValue, ratio, now, updateTime, ratio, p.id, p.name]
                     );
+
                     const currentDate = new Date();
                     const formattedTime = currentDate.toLocaleString("tr-TR", {
                         hour12: false,
@@ -55,58 +54,52 @@ async function insertOrUpdateProducts(products) {
                         minute: "2-digit",
                         second: "2-digit",
                     });
+                    const formattedNewPrice = newPriceValue.toLocaleString("tr-TR");
+                    const formattedBasePrice = basePrice.toLocaleString("tr-TR");
+                    
                     await sendTelegramMessage(
-                        `${messageHeader}\n\n🛒 HEPSIBURADA\n\n🛍️ Ürün: [${p.name}](${p.url})\n\n💰 Yeni Fiyat: *${newPriceValue} TL*\n💰 Önceki Fiyat: *${basePrice} TL*\n📉 İndirim Oranı: *%${ratio}* ${dropAmountText}\n\n🕒 ${formattedTime} ⚠️ Axi`
+                        `${messageHeader}\n\n🛒 HEPSİBURADA\n\n📱 TELEFON : [${p.name}](${p.url})\n\n💰 YENİ FİYAT : *${formattedNewPrice} TL*\n💰 ESKİ FİYAT : *${formattedBasePrice} TL*\n📉 İNDİRİM: *%${ratio}* ${dropAmountText}\n\n🕒 ${formattedTime}`
                     );
+
                     existingProducts.set(key, { price: newPriceValue, base: basePrice, max: ratio });
                 } else {
-                    // --- Normal Fiyat Düşüşü (Bildirim Yok) ---
                     await safeRun(
-                        "UPDATE hb_iphone_axios SET price = ?, second_price = ?, ratio = ?, last_seen_at = ? WHERE product_id = ?",
-                        [newPriceValue, oldPriceValue, ratio, now, p.id]
+                        "UPDATE hb_iphone_axios SET price = ?, second_price = ?, ratio = ?, last_seen_at = ? WHERE product_id = ? AND name = ?",
+                        [newPriceValue, oldPriceValue, ratio, now, p.id, p.name]
                     );
                     existingProducts.set(key, { price: newPriceValue, base: basePrice, max: maxRatio });
                 }
             } else if (newPriceValue > oldPriceValue) {
                 let updatedBasePrice = basePrice;
                 let updatedMaxRatio = maxRatio;
-                // Base Price'ın %1.5 altı = Toparlanma Eşiği (Örn: 60000 * 0.985 = 59100 TL)
                 const resetThreshold = basePrice * 0.98;
-                // Fiyat Base Price'tan yüksek mi? (Yeni tavan kırıldı mı?)
                 const isNewPriceHigherThanBase = (newPriceValue > basePrice);
-                // Fiyat, indirimden sonra toparlanma eşiğini geçti mi?
                 const isSignificantRecovery = (newPriceValue >= resetThreshold);
-                // 1. Durum: BASE PRICE KIRILMASI (En yüksek tavanı aştı)
+
                 if (isNewPriceHigherThanBase) {
                     updatedBasePrice = newPriceValue;
-                    // 🚨 Liste Fiyatı değiştiği için Max Ratio sıfırlanır.
                     updatedMaxRatio = 0;
-                    // 2. Durum: BELİRGİN TOPARLANMA (Eski rekoru geçerli kılmayacak kadar yükseldi)
                 } else if (isSignificantRecovery) {
-                    // Fiyat, %1.5'luk geri çekilme eşiğini aştı, eski indirim rekorlarını unut.
-                    // Base Price aynı kalır.
                     updatedMaxRatio = 0;
                 }
                 await safeRun(
-                    // UPDATE sorgusu: price, base_price, max_ratio, last_seen_at, product_id
-                    "UPDATE hb_iphone_axios SET price = ?, base_price = ?, max_ratio = ?, second_price = NULL, ratio = NULL, last_seen_at = ? WHERE product_id = ?",
-                    [newPriceValue, updatedBasePrice, updatedMaxRatio, now, p.id]
+                    "UPDATE hb_iphone_axios SET price = ?, base_price = ?, max_ratio = ?, second_price = NULL, ratio = NULL, last_seen_at = ? WHERE product_id = ? AND name = ?",
+                    [newPriceValue, updatedBasePrice, updatedMaxRatio, now, p.id, p.name]
                 );
                 existingProducts.set(key, { price: newPriceValue, base: updatedBasePrice, max: updatedMaxRatio });
             } else {
                 await safeRun(
-                    "UPDATE hb_iphone_axios SET last_seen_at = ? WHERE product_id = ?",
-                    [now, p.id]
+                    "UPDATE hb_iphone_axios SET last_seen_at = ? WHERE product_id = ? AND name = ?",
+                    [now, p.id, p.name]
                 );
             }
         }
     }
 
-    // 30 saniyeden eski ürünleri sil
-    // await safeRun(
-    //     `DELETE FROM hb_iphone_axios WHERE last_seen_at < ?`,
-    //     [now - STALE_THRESHOLD]
-    // );
+    await safeRun(
+        `DELETE FROM hb_iphone_axios WHERE last_seen_at < ?`,
+        [now - STALE_THRESHOLD]
+    );
 
     console.log(`✅ ${products.length} ürün işlendi, stale ürünler temizlendi.`);
 }

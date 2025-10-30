@@ -4,16 +4,13 @@ const { getRandomBrowserConfig, getRandomAcceptLanguage } = require('./uaManager
 const cheerio = require('cheerio');
 const { insertOrUpdateProducts } = require('./insertProducts');
 
-const max_pages = 3; // ← burayı değiştirebilirsin
+const max_pages = 3;
 const baseUrl = "https://www.hepsiburada.com/apple/iphone-ios-telefonlar-c-60005202?filtreler=satici:Hepsiburada";
 
-// İstek fonksiyonu
 async function sendGetRequest() {
-    // 1. Rastgele Tarayıcı Konfigürasyonunu Çekme
     const config = getRandomBrowserConfig();
     const randomLanguage = getRandomAcceptLanguage();
 
-    // 2. Dinamik Headers Objesini Oluşturma
     const headers = {
         ...baseHeaders,
         'User-Agent': config.userAgent,
@@ -30,12 +27,11 @@ async function sendGetRequest() {
 
     const allProducts = [];
     const seenIds = new Set();
-    let totalPagesCalculated = null; // Dinamik sayfa sayısı için flag
+    let totalPagesCalculated = null; 
 
     for (let page = 1; page <= max_pages; page++) {
         const pageUrl = page === 1 ? baseUrl : `${baseUrl}&sayfa=${page}`;
         try {
-            // Axios, dataPayload'u otomatik olarak JSON formatına çevirip gönderir
             const response = await axios.get(pageUrl, axiosConfig);
             if (!response.data) {
                 console.error("❌ Boş response geldi, cheerio yüklenemedi.");
@@ -127,7 +123,6 @@ async function sendGetRequest() {
     } else {
         console.log('⚠️ Sayfada ürün bulunamadı.');
     }
-    //console.clear();
 }
 
 sendGetRequest();

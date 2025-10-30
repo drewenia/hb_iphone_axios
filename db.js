@@ -4,13 +4,11 @@ const dbPath = 'C:\\db\\products.db';
 const db = new sqlite3.Database(dbPath);
 
 db.serialize(() => {
-    // WAL modunu aktif et
     db.run(`PRAGMA journal_mode = WAL;`);
     db.run(`PRAGMA synchronous = NORMAL;`);
     db.run(`PRAGMA temp_store = MEMORY;`);
     db.run(`PRAGMA cache_size = 10000;`);
 
-    // Tabloyu oluştur
     db.run(`
         CREATE TABLE IF NOT EXISTS hb_iphone_axios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
