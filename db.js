@@ -22,6 +22,7 @@ db.serialize(() => {
         last_seen_at INTEGER,
         update_time INTEGER,
         base_price REAL,
+        last_notification_time INTEGER DEFAULT 0,
         UNIQUE(product_id,name)
     )
     `);

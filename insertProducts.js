@@ -3,12 +3,14 @@ const { sendTelegramMessage } = require('./telegram');
 const STALE_THRESHOLD = 90;
 
 async function insertOrUpdateProducts(products) {
+    const TEN_MINUTES = 600;
     const existingRows = await all(`SELECT product_id, name, price, base_price, max_ratio FROM hb_iphone_axios`);
     const existingProducts = new Map(
         existingRows.map(r => [`${r.product_id}-${r.name}`, {
             price: r.price,
             base: r.base_price,
-            max: r.max_ratio || 0
+            max: r.max_ratio || 0,
+            lastNotificationTime: r.last_notification_time || 0
         }])
     );
     const now = Math.floor(Date.now() / 1000); // epoch time
@@ -31,7 +33,15 @@ async function insertOrUpdateProducts(products) {
             const ratio = parseFloat(((1 - newPriceValue / basePrice) * 100).toFixed(2));
 
             if (newPriceValue < oldPriceValue) {
-                if (ratio >= 7 && ratio >= maxRatio + 2) {
+                if (ratio >= 8 && ratio >= maxRatio + 2) {
+                    const lastNotificationTime = oldEntry.lastNotificationTime || 0;
+                    const timeSinceLastNotification = now - lastNotificationTime;
+
+                    if (ratio === maxRatio && timeSinceLastNotification < TEN_MINUTES) {
+                        console.log(`⏱️ ${p.name} için aynı ratio bildirimi 10 dakika içinde tekrarlandı, atlanıyor.`);
+                        continue;
+                    }
+
                     const updateTime = now;
                     const isFirstNotification = (maxRatio === 0);
                     const messageHeader = isFirstNotification
@@ -43,8 +53,8 @@ async function insertOrUpdateProducts(products) {
                         : '';
 
                     await safeRun(
-                        "UPDATE hb_iphone_axios SET price = ?, second_price = ?, ratio = ?, last_seen_at = ?, update_time = ?, max_ratio = ? WHERE product_id = ? AND name = ?",
-                        [newPriceValue, oldPriceValue, ratio, now, updateTime, ratio, p.id, p.name]
+                        "UPDATE hb_iphone_axios SET price = ?, second_price = ?, ratio = ?, last_seen_at = ?, update_time = ?, max_ratio = ?, last_notification_time = ? WHERE product_id = ? AND name = ?",
+                        [newPriceValue, oldPriceValue, ratio, now, updateTime, ratio, now, p.id, p.name]
                     );
 
                     const currentDate = new Date();
@@ -56,7 +66,7 @@ async function insertOrUpdateProducts(products) {
                     });
                     const formattedNewPrice = newPriceValue.toLocaleString("tr-TR");
                     const formattedBasePrice = basePrice.toLocaleString("tr-TR");
-                    
+
                     await sendTelegramMessage(
                         `${messageHeader}\n\n🛒 HEPSİBURADA\n\n📱 TELEFON : [${p.name}](${p.url})\n\n💰 YENİ FİYAT : *${formattedNewPrice} TL*\n💰 ESKİ FİYAT : *${formattedBasePrice} TL*\n📉 İNDİRİM: *%${ratio}* ${dropAmountText}\n\n🕒 ${formattedTime}`
                     );
