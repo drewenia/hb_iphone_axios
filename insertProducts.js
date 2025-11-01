@@ -71,7 +71,7 @@ async function insertOrUpdateProducts(products) {
                         `${messageHeader}\n\n🛒 HEPSİBURADA\n\n📱 TELEFON : [${p.name}](${p.url})\n\n💰 YENİ FİYAT : *${formattedNewPrice} TL*\n💰 ESKİ FİYAT : *${formattedBasePrice} TL*\n📉 İNDİRİM: *%${ratio}* ${dropAmountText}\n\n🕒 ${formattedTime}`
                     );
 
-                    existingProducts.set(key, { price: newPriceValue, base: basePrice, max: ratio });
+                    existingProducts.set(key, { price: newPriceValue, base: basePrice, max: ratio, lastNotificationTime: now });
                 } else {
                     await safeRun(
                         "UPDATE hb_iphone_axios SET price = ?, second_price = ?, ratio = ?, last_seen_at = ? WHERE product_id = ? AND name = ?",
