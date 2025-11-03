@@ -37,8 +37,8 @@ async function insertOrUpdateProducts(products) {
                     const lastNotificationTime = oldEntry.lastNotificationTime || 0;
                     const timeSinceLastNotification = now - lastNotificationTime;
 
-                    if (ratio === maxRatio && timeSinceLastNotification < TEN_MINUTES) {
-                        console.log(`⏱️ ${p.name} için aynı ratio bildirimi 10 dakika içinde tekrarlandı, atlanıyor.`);
+                    if (timeSinceLastNotification < TEN_MINUTES) {
+                        console.log(`⏱️ ${p.name} için bildirim 10 dakika içinde tekrarlandı, atlanıyor.`);
                         continue;
                     }
 
