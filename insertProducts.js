@@ -33,7 +33,7 @@ async function insertOrUpdateProducts(products) {
             const ratio = parseFloat(((1 - newPriceValue / basePrice) * 100).toFixed(2));
 
             if (newPriceValue < oldPriceValue) {
-                if (ratio >= 8 && ratio >= maxRatio + 2) {
+                if (ratio >= 7 && ratio >= maxRatio + 2) {
                     const lastNotificationTime = oldEntry.lastNotificationTime || 0;
                     const timeSinceLastNotification = now - lastNotificationTime;
 
