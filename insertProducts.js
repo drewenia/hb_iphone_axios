@@ -69,7 +69,7 @@ async function insertOrUpdateProducts(products) {
 
                     const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(p.name)}`;
                     await sendTelegramMessage(
-                        `${messageHeader}\n\n🛒 HEPSİBURADA\n\n📱 TELEFON : [${p.name}](${p.url})\n\n💰 YENİ FİYAT : *${formattedNewPrice} TL*\n💰 ESKİ FİYAT : *${formattedBasePrice} TL*\n📉 İNDİRİM: *%${ratio}* ${dropAmountText}\n\n🕒 ${formattedTime} [Google'da Ara](${googleSearchUrl})`
+                        `${messageHeader}\n\n🛒 HEPSİBURADA\n\n📱 TELEFON : [${p.name}](${p.url})\n\n💰 YENİ FİYAT : *${formattedNewPrice} TL*\n💰 ESKİ FİYAT : *${formattedBasePrice} TL*\n📉 İNDİRİM: *%${ratio}* ${dropAmountText}\n\n🕒 ${formattedTime} [GOOGLE'DA ARA](${googleSearchUrl}`
                     );
 
                     existingProducts.set(key, { price: newPriceValue, base: basePrice, max: ratio, lastNotificationTime: now });
