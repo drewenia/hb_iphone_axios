@@ -25,6 +25,38 @@ async function insertOrUpdateProducts(products) {
                 "INSERT OR IGNORE INTO hb_iphone_axios (product_id, name, price, url, last_seen_at, base_price, max_ratio) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 [p.id, p.name, newPriceValue, p.url, now, newPriceValue, 0]
             );
+            const currentDate = new Date();
+            const formattedTime = currentDate.toLocaleString("tr-TR", {
+                hour12: false,
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+            });
+            const formattedNewPrice = newPriceValue.toLocaleString("tr-TR");
+
+            if (
+                (
+                    p.name.toLowerCase().includes("iphone 17 pro max") &&
+                    (
+                        p.name.toLowerCase().includes("256") ||
+                        p.name.toLowerCase().includes("512") ||
+                        p.name.toLowerCase().includes("1 tb") ||
+                        p.name.toLowerCase().includes("1tb")
+                    )
+                ) ||
+                (
+                    p.name.toLowerCase().includes("iphone 17 pro") &&
+                    !p.name.toLowerCase().includes("max") &&
+                    (
+                        p.name.toLowerCase().includes("256") ||
+                        p.name.toLowerCase().includes("512") ||
+                        p.name.toLowerCase().includes("1 tb") ||
+                        p.name.toLowerCase().includes("1tb")
+                    )
+                )
+            ) {
+                await sendTelegramMessage(`✅ STOKTA\n\n🛒 HEPSIBURADA\n\n📱 TELEFON : [${p.name}](${p.url})\n\n💰 Güncel Fiyat : *${formattedNewPrice} TL*\n\n🕒 ${formattedTime}`);
+            }
             existingProducts.set(key, { price: newPriceValue, base: newPriceValue, max: 0 });
         } else {
             const oldPriceValue = oldEntry.price;
